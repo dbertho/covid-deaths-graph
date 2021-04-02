@@ -43,11 +43,11 @@ def print_ten_thousand_text(draw, total_deaths, date, line_y, text_left):
                                                                                 font=font_small)
     ten_thousand_text_deaths_width, ten_thousand_text_deaths_height = draw.textsize(ten_thousand_text_deaths,
                                                                                     font=font_regular)
-    draw.text((text_left, line_y - ten_thousand_text_deaths_height - ten_thousand_text_date_height),
+    draw.text((text_left, line_y - ten_thousand_text_date_height),
               ten_thousand_text_date,
               font=font_small,
               fill=(255, 0, 0))
-    draw.text((text_left, line_y - ten_thousand_text_deaths_height),
+    draw.text((text_left, line_y + 2),
               ten_thousand_text_deaths + " deaths",
               font=font_regular,
               fill=(255, 0, 0))
@@ -250,35 +250,12 @@ def generate_image(data, location, region):
     img.save('covid_' + region.lower() + '.png')
 
 
-def main():
-    """
-    this is the URL for a JSON file maintained by Our World in Data containing data for all countries and regions
-    change it with the URL of your choice
-    """
-    # set the region for which you want to create the graph
-    # exemples: France: FRA, United Kingdom: GBR, Taiwan: TWN, European Union: OWID_EUN, World: OWID_WRL ...
-    region = "OWID_WRL"
-
-    req = urllib.request.Request(
-        "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.json")
+def prepare_data(json_data, region):
+    location = json_data[region]["location"]
     full_data = []
 
-    try:
-        response = urllib.request.urlopen(req)
-    except HTTPError as e:
-        print('Service unavailable.')
-        print('Error : ', e.code)
-        exit(0)
-    except URLError as e:
-        print('Server unreachable.')
-        print('Error : ', e.reason)
-        exit(0)
-    print("JSON downloaded")
-
-    with response as json_file:
-        json_data = json.load(json_file)
-
-    location = json_data[region]["location"]
+    if not "total_deaths" in json_data[region]["data"][-1]:
+        return None
 
     # this loop parses each day of the JSON file and adds the relevant processed data in a new dictionary file
     for day in json_data[region]["data"]:
@@ -295,7 +272,7 @@ def main():
             total_deaths = 0
 
         # do not calculate the moving average for countries with very few deaths
-        if len(full_data) >= 7 and json_data[region]["data"][-1]["total_deaths"] > 100:
+        if len(full_data) >= 7 and json_data[region]["data"][-1]["total_deaths"] > 5000:
             moving_average = calc_moving_average(full_data, 7)
         else:
             moving_average = daily_deaths
@@ -308,6 +285,42 @@ def main():
         full_data.append(date_data.copy())
 
     generate_image(full_data, location, region)
+    print(location + " exported")
+
+
+def main():
+    """
+    this is the URL for a JSON file maintained by Our World in Data containing data for all countries and regions
+    change it with the URL of your choice
+    """
+    # set the region for which you want to create the graph
+    # exemples: France: FRA, United Kingdom: GBR, Taiwan: TWN, European Union: OWID_EUN, World: OWID_WRL ...
+    # to create graphs for each country and region, set this value to "all_countries"
+    region = "all_countries"
+
+    req = urllib.request.Request(
+        "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.json")
+
+    try:
+        response = urllib.request.urlopen(req)
+    except HTTPError as e:
+        print('Service unavailable.')
+        print('Error : ', e.code)
+        exit(0)
+    except URLError as e:
+        print('Server unreachable.')
+        print('Error : ', e.reason)
+        exit(0)
+    print("JSON downloaded")
+
+    with response as json_file:
+        json_data = json.load(json_file)
+
+    if region == "all_countries":
+        for country in json_data:
+            prepare_data(json_data, country)
+    else:
+        prepare_data(json_data, region)
 
 
 if __name__ == '__main__':
