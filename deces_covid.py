@@ -6,6 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 import time
 from sys import exit
 
+
 start_time = time.time()
 font_regular = ImageFont.truetype("arial.ttf", size=10)
 font_small = ImageFont.truetype("arial.ttf", size=8)
@@ -214,7 +215,7 @@ def generate_image(data):
 
 def main():
 
-    '''
+    """
     this is the URL for a JSON file containing data for France
     change it with the URL of your choice
     the JSON file contains the following information used in this script:
@@ -225,7 +226,7 @@ def main():
     }
     deces and decesEhpad count the number of deaths respectively in general hospitals and nursing homes
     They must be added to have the total count of deaths
-    '''
+    """
 
     req = urllib.request.Request("https://www.data.gouv.fr/fr/datasets/r/d2671c6c-c0eb-4e12-b69a-8e8f87fc224c")
     full_data = []
