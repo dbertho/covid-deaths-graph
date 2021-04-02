@@ -88,10 +88,10 @@ def generate_image(data, location, region):
     margin = 15
     max_moving_average = max(item['moving_average'] for item in data) + 1
     print(max_moving_average)
-    margin_top = 50
+    margin_top = 60
     margin_bottom = 30
     margin_right = 6 * margin
-    line_multiplier = max(round(data[-1]["total_deaths"] / (max_moving_average * 40)), 1)
+    line_multiplier = max(round(data[-1]["total_deaths"] / (max_moving_average * 40)), 2)
     print(line_multiplier)
     day_line_length = 3
     day_line_margin = 2
@@ -105,12 +105,17 @@ def generate_image(data, location, region):
 
     # Main title of the graph
     title = "DEATHS FROM COVID-19 IN " + location.upper() + " FROM " + data[0]['date'] + " TO " + data[-1]['date']
+    title2 = "TOTAL: " + str(int(data[-1]["total_deaths"])) + " VICTIMS"
     title_width, title_height = draw.textsize(title, font=font_regular)
+    title2_width, title2_height = draw.textsize(title2, font=font_regular)
 
     # Subtitle to give secondary information
     sub_title_1 = "1 black pixel = 1 victim"
     sub_title_1_width, sub_title_1_height = draw.textsize(sub_title_1, font=font_regular)
     sub_title_2 = "Deaths smoothed over 7 days"
+
+    days = "Days"
+    days_width, days_height = draw.textsize(days, font=font_regular)
 
     # Footer for credit information.
     footer_1 = "David Bertho"
@@ -124,21 +129,35 @@ def generate_image(data, location, region):
     source_2_width, source_2_height = draw.textsize(source_2, font=font_regular)
     footer_width = max(footer_1_width, footer_2_width)
 
+    # draw title
     draw.text(((img_width - title_width) / 2, 10),
               title,
               font=font_regular,
               fill=(0, 0, 0))
+    draw.text(((img_width - title2_width) / 2, 10 + title_height),
+              title2,
+              font=font_regular,
+              fill=(0, 0, 0))
 
-    draw.text((margin, 10 + title_height * 2),
+    # draw subtitle
+    draw.text((margin, 10 + title_height * 3),
               sub_title_1,
               font=font_regular,
               fill=(0, 0, 0))
     draw.text((margin,
-               10 + title_height * 2 + sub_title_1_height),
+               10 + title_height * 3 + sub_title_1_height),
               sub_title_2,
               font=font_regular,
               fill=(0, 0, 0))
 
+    # draw day legend
+    draw.text((img_width - margin - margin_right + day_line_margin,
+               margin + margin_top - days_height),
+              days,
+              font=font_regular,
+              fill=(255, 0, 0))
+
+    # draw source information
     draw.text((margin,
                img_height - margin_bottom - source_2_height),
               source_1,
@@ -150,6 +169,7 @@ def generate_image(data, location, region):
               font=font_regular,
               fill=(0, 0, 0))
 
+    # draw credit information
     draw.text((img_width - margin - footer_1_width,
                img_height - margin_bottom - footer_2_height),
               footer_1,
@@ -166,7 +186,9 @@ def generate_image(data, location, region):
     year = int(data[0]['date'][0:4])
 
     # show major lines depending on the total number of deaths
-    multiplier = 20
+    multiplier = 5
+    if data[-1]["total_deaths"] > 50:
+        multiplier = 20
     if data[-1]["total_deaths"] > 100:
         multiplier = 50
     if data[-1]["total_deaths"] > 500:
@@ -255,7 +277,7 @@ def main():
 
     # set the region for which you want to create the graph
     # exemples: France: FRA, United Kingdom: GBR, Taiwan: TWN, European Union: OWID_EUN, World: OWID_WRL ...
-    region = "NZL"
+    region = "TWN"
 
     location = json_data[region]["location"]
 
