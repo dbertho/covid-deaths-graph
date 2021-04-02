@@ -87,12 +87,10 @@ def generate_image(data, location, region):
     nb_days = len(data)
     margin = 15
     max_moving_average = max(item['moving_average'] for item in data) + 1
-    print(max_moving_average)
     margin_top = 60
     margin_bottom = 30
     margin_right = 6 * margin
     line_multiplier = max(round(data[-1]["total_deaths"] / (max_moving_average * 40)), 2)
-    print(line_multiplier)
     day_line_length = 3
     day_line_margin = 2
     ten_thousand_deaths_length = 3 * margin
@@ -186,19 +184,20 @@ def generate_image(data, location, region):
     year = int(data[0]['date'][0:4])
 
     # show major lines depending on the total number of deaths
-    multiplier = 5
-    if data[-1]["total_deaths"] > 50:
-        multiplier = 20
-    if data[-1]["total_deaths"] > 100:
-        multiplier = 50
-    if data[-1]["total_deaths"] > 500:
-        multiplier = 250
-    if data[-1]["total_deaths"] > 2000:
-        multiplier = 1000
-    if data[-1]["total_deaths"] > 20000:
-        multiplier = 10000
     if data[-1]["total_deaths"] > 200000:
         multiplier = 100000
+    elif data[-1]["total_deaths"] > 20000:
+        multiplier = 10000
+    elif data[-1]["total_deaths"] > 2000:
+        multiplier = 1000
+    elif data[-1]["total_deaths"] > 500:
+        multiplier = 250
+    elif data[-1]["total_deaths"] > 100:
+        multiplier = 50
+    elif data[-1]["total_deaths"] > 50:
+        multiplier = 20
+    else:
+        multiplier = 5
 
     for day in data:
 
@@ -256,6 +255,10 @@ def main():
     this is the URL for a JSON file maintained by Our World in Data containing data for all countries and regions
     change it with the URL of your choice
     """
+    # set the region for which you want to create the graph
+    # exemples: France: FRA, United Kingdom: GBR, Taiwan: TWN, European Union: OWID_EUN, World: OWID_WRL ...
+    region = "OWID_WRL"
+
     req = urllib.request.Request(
         "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.json")
     full_data = []
@@ -274,10 +277,6 @@ def main():
 
     with response as json_file:
         json_data = json.load(json_file)
-
-    # set the region for which you want to create the graph
-    # exemples: France: FRA, United Kingdom: GBR, Taiwan: TWN, European Union: OWID_EUN, World: OWID_WRL ...
-    region = "TWN"
 
     location = json_data[region]["location"]
 
@@ -307,11 +306,10 @@ def main():
                      "moving_average": moving_average
                      }
         full_data.append(date_data.copy())
-        print(date + " added")
 
     generate_image(full_data, location, region)
 
 
 if __name__ == '__main__':
     main()
-    print("-- Temps d'exécution : %s secondes --" % (time.time() - start_time))
+    print("-- Execution time: %s seconds --" % (time.time() - start_time))
