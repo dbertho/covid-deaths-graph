@@ -6,4 +6,4 @@ It uses data from France but can be adapted for various sources.
 
 The script outputs this image:
 
-![alt text](https://github.com/dbertho/covid-deaths-graph/blob/main/covid.png "COVID Deaths Graph output")
+![alt text](https://github.com/dbertho/covid-deaths-graph/blob/main/covid_fra.png "COVID Deaths Graph output for France")
