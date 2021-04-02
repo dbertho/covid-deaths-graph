@@ -1,8 +1,10 @@
 import urllib.request
+from urllib.error import URLError, HTTPError
 import json
 import random
 from PIL import Image, ImageDraw, ImageFont
 import time
+from sys import exit
 
 start_time = time.time()
 font_regular = ImageFont.truetype("arial.ttf", size=10)
@@ -170,10 +172,21 @@ def generate_image(data):
 
 
 def main():
-    json_url = "https://www.data.gouv.fr/fr/datasets/r/d2671c6c-c0eb-4e12-b69a-8e8f87fc224c"
+    req = urllib.request.Request("https://www.data.gouv.fr/fr/datasets/r/d2671c6c-c0eb-4e12-b69a-8e8f87fc224c")
     full_data = []
 
-    with urllib.request.urlopen(json_url) as json_file:
+    try:
+        response = urllib.request.urlopen(req)
+    except HTTPError as e:
+        print('Service indisponible.')
+        print('Erreur : ', e.code)
+        exit(0)
+    except URLError as e:
+        print('Serveur inaccessible.')
+        print('Erreur : ', e.reason)
+        exit(0)
+
+    with response as json_file:
         json_data = json.load(json_file)
 
     for day in json_data:
@@ -203,10 +216,9 @@ def main():
                      }
         full_data.append(date_data.copy())
 
-    print(full_data)
     generate_image(full_data)
 
 
 if __name__ == '__main__':
     main()
-    print("--- %s seconds ---" % (time.time() - start_time))
+    print("-- Temps d'exécution : %s secondes --" % (time.time() - start_time))
