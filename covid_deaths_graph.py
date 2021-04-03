@@ -89,14 +89,18 @@ def generate_image(data, location, region):
     max_moving_average = max(item['moving_average'] for item in data) + 1
     margin_top = 60
     margin_bottom = 30
-    margin_right = 6 * margin
-    line_multiplier = max(round(data[-1]["total_deaths"] / (max_moving_average * 40)), 2)
+    margin_right = 7 * margin
+    line_multiplier = 1
     day_line_length = 3
     day_line_margin = 2
     ten_thousand_deaths_length = 3 * margin
 
-    img_height = line_multiplier * nb_days + margin_top + margin_bottom + 2 * margin
-    img_width = max(round(max_moving_average / line_multiplier) + 2 * margin + margin_right, 500)
+    img_width = 2000
+    img_height = 1
+    while img_width > 1900 or img_width * 1.5 > img_height:
+        line_multiplier += 1
+        img_width = max(round(max_moving_average / line_multiplier) + 2 * margin + margin_right, 500)
+        img_height = line_multiplier * nb_days + margin_top + margin_bottom + 2 * margin
     text_left = img_width - margin_right
     img = Image.new(mode="RGB", size=(img_width, img_height), color=(255, 255, 255))
     draw = ImageDraw.Draw(img)
