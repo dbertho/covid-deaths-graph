@@ -142,11 +142,12 @@ def generate_image(data, location, region):
               sub_title_1,
               font=font_regular,
               fill=(0, 0, 0))
-    draw.text((margin,
-               10 + title_height * 3 + sub_title_1_height),
-              sub_title_2,
-              font=font_regular,
-              fill=(0, 0, 0))
+    if data[-1]["total_deaths"] > 5000:
+        draw.text((margin,
+                   10 + title_height * 3 + sub_title_1_height),
+                  sub_title_2,
+                  font=font_regular,
+                  fill=(0, 0, 0))
 
     # draw day legend
     draw.text((img_width - margin - margin_right + day_line_margin,
@@ -184,7 +185,9 @@ def generate_image(data, location, region):
     year = int(data[0]['date'][0:4])
 
     # show major lines depending on the total number of deaths
-    if data[-1]["total_deaths"] > 200000:
+    if data[-1]["total_deaths"] > 1000000:
+        multiplier = 500000
+    elif data[-1]["total_deaths"] > 200000:
         multiplier = 100000
     elif data[-1]["total_deaths"] > 20000:
         multiplier = 10000
@@ -197,7 +200,7 @@ def generate_image(data, location, region):
     elif data[-1]["total_deaths"] > 50:
         multiplier = 20
     else:
-        multiplier = 5
+        multiplier = 10
 
     for day in data:
 
@@ -251,6 +254,12 @@ def generate_image(data, location, region):
 
 
 def prepare_data(json_data, region):
+    """
+
+    :param json_data: json object containing all data
+    :param region: region code to identify the country
+    :return: fake return to exit the function if the country has no death data
+    """
     location = json_data[region]["location"]
     full_data = []
 
