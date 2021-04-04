@@ -7,8 +7,8 @@ import time
 from sys import exit
 
 start_time = time.time()
-font_regular = ImageFont.truetype("arial.ttf", size=10)
-font_small = ImageFont.truetype("arial.ttf", size=8)
+font_regular = ImageFont.truetype("asap.ttf", size=10)
+font_small = ImageFont.truetype("asap.ttf", size=8)
 
 
 def calc_moving_average(data, n):
